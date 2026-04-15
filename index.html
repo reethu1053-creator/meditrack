@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediTrack • Medication Management for Patients</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
+    <style>
+        :root{--navy:#0f1b2d;--teal:#0d9488;--teal-light:#14b8a6;--cream:#faf7f2;--amber:#f59e0b;--rose:#f43f5e;--surface:#fff;--muted:#64748b;--border:#e2e8f0;--slate:#1e293b;}
+        *{box-sizing:border-box;}
+        html{scroll-behavior:smooth;}
+        body{margin:0;font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--navy);}
+        .serif{font-family:'Fraunces',serif;}
+        #authScreen{background:radial-gradient(ellipse at 60% 40%,#0d9488 0%,#0f1b2d 70%);}
+        .tab-active{border-bottom:2.5px solid var(--teal);color:var(--teal);font-weight:600;}
+        nav{background:var(--navy);}
+        nav a{color:rgba(255,255,255,0.6);transition:color .2s;text-decoration:none;}
+        nav a:hover{color:#fff;}
+        .hero-section{background:var(--navy);position:relative;overflow:hidden;}
+        .hero-section::before{content:'';position:absolute;width:700px;height:700px;background:radial-gradient(circle,rgba(13,148,136,.25) 0%,transparent 70%);top:-200px;right:-200px;border-radius:50%;}
+        .hero-section::after{content:'';position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(245,158,11,.1) 0%,transparent 70%);bottom:-100px;left:100px;border-radius:50%;}
+        .med-card,.automation-card,.automation-panel,.stat-box,.edu-card,.reminder-card,.builder-card,.timeline-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;}
+        .med-card{transition:all .35s cubic-bezier(.4,0,.2,1);}
+        .med-card:hover,.automation-card:hover,.edu-card:hover,.builder-card:hover{transform:translateY(-6px);box-shadow:0 20px 40px -10px rgba(15,27,45,.12);}
+        .automation-card,.builder-card,.edu-card{transition:all .3s cubic-bezier(.4,0,.2,1);}
+        .btn-primary{background:var(--teal);color:#fff;border-radius:12px;padding:12px 28px;font-weight:600;transition:all .2s;border:none;cursor:pointer;}
+        .btn-primary:hover{background:#0f766e;transform:translateY(-1px);}
+        .btn-secondary{background:transparent;color:var(--teal);border:1.5px solid var(--teal);border-radius:12px;padding:11px 28px;font-weight:600;transition:all .2s;cursor:pointer;}
+        .btn-secondary:hover{background:rgba(13,148,136,.07);}
+        .input-field{border:1.5px solid var(--border);border-radius:12px;padding:12px 18px;width:100%;font-family:'DM Sans',sans-serif;font-size:15px;background:var(--cream);transition:border-color .2s,background .2s;outline:none;}
+        .input-field:focus{border-color:var(--teal);background:#fff;}
+        .modal-box{animation:slideUp .38s cubic-bezier(.34,1.56,.64,1);}
+        @keyframes slideUp{from{opacity:0;transform:translateY(40px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .toast-item{animation:toastIn .4s cubic-bezier(.34,1.56,.64,1);}
+        @keyframes toastIn{from{transform:translateX(120px);opacity:0}to{transform:translateX(0);opacity:1}}
+        .result-box{background:linear-gradient(135deg,#f0fdfa,#ecfdf5);border:1.5px solid #99f6e4;border-radius:16px;padding:26px;margin-top:16px;}
+        .result-box h4{color:var(--teal);font-weight:700;margin:14px 0 6px;font-size:14px;}
+        .result-box p{font-size:14px;line-height:1.7;}
+        .badge{display:inline-block;border-radius:999px;padding:4px 12px;font-size:12px;font-weight:600;}
+        .badge-teal{background:#ccfbf1;color:#0f766e;}
+        .badge-amber{background:#fef3c7;color:#92400e;}
+        .badge-rose{background:#ffe4e6;color:#be123c;}
+        .badge-slate{background:#e2e8f0;color:#334155;}
+        .prog-bar{background:#e2e8f0;border-radius:999px;overflow:hidden;height:10px;}
+        .prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-light));border-radius:999px;}
+        .chart-bar{background:linear-gradient(180deg,var(--teal-light),var(--teal));border-radius:6px 6px 0 0;flex:1;}
+        .lang-pill{position:fixed;top:16px;right:20px;z-index:9999;background:rgba(255,255,255,.95);border:1px solid var(--border);border-radius:999px;padding:7px 16px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.1);}
+        .edu-card{padding:26px;cursor:pointer;}
+        .stat-box{padding:30px;text-align:center;}
+        .reminder-card{padding:16px 22px;display:flex;align-items:center;justify-content:space-between;transition:box-shadow .2s;}
+        .reminder-card:hover,.timeline-card:hover,.automation-panel:hover{box-shadow:0 8px 24px rgba(0,0,0,.07);}
+        .automation-grid{display:grid;grid-template-columns:1.35fr .95fr;gap:24px;}
+        .automation-card{padding:24px;position:relative;overflow:hidden;}
+        .automation-card::after{content:'';position:absolute;inset:auto -20% -55% auto;width:170px;height:170px;background:radial-gradient(circle,rgba(13,148,136,.12) 0%,transparent 70%);border-radius:50%;}
+        .automation-panel{padding:26px;}
+        .builder-card{padding:26px;}
+        .timeline-card{padding:18px 20px;transition:all .25s;}
+        .timeline-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+        .switch{width:48px;height:28px;background:#dbe4ee;border-radius:999px;position:relative;border:none;cursor:pointer;transition:background .2s;}
+        .switch::after{content:'';position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 2px 8px rgba(0,0,0,.18);}
+        .switch.active{background:linear-gradient(90deg,var(--teal),var(--teal-light));}
+        .switch.active::after{transform:translateX(20px);}
+        .automation-metric{background:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.9);border-radius:16px;padding:18px;}
+        .automation-toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+        .filter-pills{display:flex;gap:10px;flex-wrap:wrap;}
+        .filter-pill{border:1px solid var(--border);background:#fff;color:var(--muted);border-radius:999px;padding:9px 14px;font-size:12px;font-weight:700;letter-spacing:.02em;cursor:pointer;transition:all .2s;}
+        .filter-pill.active{background:rgba(13,148,136,.08);border-color:#7dd3c7;color:var(--teal);}
+        .automation-card.is-selected{border-color:#7dd3c7;box-shadow:0 20px 40px -10px rgba(13,148,136,.18);}
+        .detail-shell{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;margin-top:24px;}
+        .detail-stat{padding:16px;border-radius:16px;background:#f8fafc;border:1px solid var(--border);}
+        .mini-bar{height:8px;background:#e2e8f0;border-radius:999px;overflow:hidden;}
+        .mini-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-light));border-radius:999px;}
+        .section-shell{max-width:1280px;margin:0 auto;}
+        footer{background:var(--navy);color:rgba(255,255,255,.8);}
+        .app-page{display:none;min-height:calc(100vh - 62px);}
+        .app-page.active{display:block;}
+        .nav-links a.nav-active{color:#fff;position:relative;}
+        .nav-links a.nav-active::after{content:'';position:absolute;left:0;bottom:-10px;width:100%;height:2px;border-radius:999px;background:var(--teal-light);}
+        @media(max-width:1024px){.automation-grid,.detail-shell{grid-template-columns:1fr;}}
+        @media(max-width:768px){.nav-links{display:none!important;}.hero-title{font-size:2.3rem!important;}.builder-grid{grid-template-columns:1fr!important;}.metrics-grid{grid-template-columns:1fr 1fr!important;}}
+    </style>
+</head>
+<body>
+<div class="lang-pill">
+    <span style="font-size:15px">🌐</span>
+    <select id="languageSelect" onchange="changeLanguage()" style="background:transparent;font-size:13px;font-weight:600;border:none;outline:none;font-family:'DM Sans',sans-serif;">
+        <option value="en">English</option>
+        <option value="hi">हिंदी</option>
+        <option value="te">తెలుగు</option>
+    </select>
+</div>
+
+<div id="toastContainer" style="position:fixed;bottom:24px;right:24px;z-index:99999;display:flex;flex-direction:column;gap:10px;"></div>
+
+<div id="authScreen" class="fixed inset-0 flex items-center justify-center z-[9998]" style="padding:16px;">
+    <div style="background:rgba(255,255,255,.97);width:100%;max-width:410px;border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,.3);overflow:hidden;">
+        <div style="background:linear-gradient(135deg,#0d9488,#0f1b2d);padding:36px;text-align:center;">
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:10px;">
+                <svg width="46" height="46" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="46" height="46" rx="13" fill="rgba(255,255,255,0.15)"/>
+                    <polyline points="5,23 12,23 15,14 19,32 23,18 27,28 30,23 41,23" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <h1 class="serif" id="authTitle" style="color:#fff;font-size:1.9rem;font-weight:500;letter-spacing:-.01em;">MediTrack</h1>
+            </div>
+            <p style="color:rgba(255,255,255,.6);font-size:13px;">Your personal medication companion</p>
+        </div>
+        <div style="padding:30px;">
+            <div style="display:flex;border-bottom:1.5px solid var(--border);margin-bottom:26px;">
+                <button onclick="switchTab(0)" id="loginTab" class="tab-active" style="flex:1;padding-bottom:12px;font-size:14px;background:none;border:none;cursor:pointer;">Login</button>
+                <button onclick="switchTab(1)" id="registerTab" style="flex:1;padding-bottom:12px;font-size:14px;color:var(--muted);background:none;border:none;cursor:pointer;">Register</button>
+            </div>
+            <div id="loginForm">
+                <div style="margin-bottom:14px;"><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;">Email</label><input id="loginEmail" type="email" value="reethika@dtm.com" class="input-field" placeholder="your@email.com"></div>
+                <div style="margin-bottom:22px;"><label style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;">Password</label><input id="loginPassword" type="password" value="123456" class="input-field" placeholder="••••••••"></div>
+                <button onclick="handleLogin()" class="btn-primary" style="width:100%;padding:13px;font-size:15px;">Sign In →</button>
+                <p style="text-align:center;font-size:12px;color:var(--muted);margin-top:12px;">Demo: reethika@dtm.com / 123456</p>
+            </div>
+            <div id="registerForm" style="display:none;">
+                <div style="margin-bottom:13px;"><input id="regName" class="input-field" placeholder="Full Name"></div>
+                <div style="margin-bottom:13px;"><input id="regEmail" type="email" class="input-field" placeholder="Email Address"></div>
+                <div style="margin-bottom:22px;"><input id="regPassword" type="password" class="input-field" placeholder="Create Password"></div>
+                <button onclick="handleRegister()" class="btn-primary" style="width:100%;padding:13px;font-size:15px;">Create Account →</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="mainApp" style="display:none;">
+    <nav style="position:sticky;top:0;z-index:500;border-bottom:1px solid rgba(255,255,255,.08);">
+        <div class="section-shell" style="padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:62px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+                <svg width="34" height="34" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="46" height="46" rx="13" fill="#0d9488"/>
+                    <polyline points="5,23 12,23 15,14 19,32 23,18 27,28 30,23 41,23" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+                <span class="serif" id="navTitle" style="color:#fff;font-size:1.3rem;font-weight:500;letter-spacing:-.01em;cursor:pointer;" onclick="openPage('home')">MediTrack</span>
+            </div>
+            <div class="nav-links" style="display:flex;gap:28px;font-size:13.5px;font-weight:500;">
+                <a href="#home" onclick="openPage('home')" id="navHome">Home</a>
+                <a href="#medications" onclick="openPage('medications')" id="navMed">My Medications</a>
+                <a href="#reminders" onclick="openPage('reminders')" id="navRem">Reminders</a>
+                <a href="#automation" onclick="openPage('automation')" id="navAuto">Automation</a>
+                <a href="#checker" onclick="openPage('checker')" id="navCheck">Checker</a>
+                <a href="#diet" onclick="openPage('diet')" id="navDiet">Diet</a>
+                <a href="#education" onclick="openPage('education')" id="navEdu">Education</a>
+                <a href="#progress" onclick="openPage('progress')" id="navProg">Progress</a>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div style="display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);padding:7px 14px;border-radius:999px;">
+                    <i class="fa-solid fa-circle-user" style="color:rgba(255,255,255,.6);font-size:16px;"></i>
+                    <div>
+                        <p id="userName" style="color:#fff;font-size:13px;font-weight:600;line-height:1.2;"></p>
+                        <p id="userSubtitle" style="color:rgba(255,255,255,.4);font-size:10px;"></p>
+                    </div>
+                </div>
+                <button onclick="logout()" id="logoutText" style="background:rgba(244,63,94,.12);color:#fca5a5;border:1px solid rgba(244,63,94,.25);border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:5px;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <section id="home" class="hero-section app-page" style="padding:90px 24px;">
+        <div class="section-shell" style="position:relative;z-index:1;">
+            <h1 class="serif hero-title" id="heroTitle" style="color:#fff;font-size:3.7rem;line-height:1.15;margin-bottom:16px;max-width:720px;">Medication made simple,<br><em style="color:#5eead4;">for every patient</em></h1>
+            <p id="heroDesc" style="color:rgba(255,255,255,.6);font-size:17px;margin-bottom:38px;max-width:520px;line-height:1.75;">Track your medicines, set reminders, automate recurring care tasks, get diet plans, and stay on top of your health.</p>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;">
+                <button onclick="openPage('medications')" class="btn-primary" id="startBtn" style="padding:13px 30px;font-size:15px;display:flex;align-items:center;gap:9px;"><i class="fa-solid fa-pills"></i> Start Managing</button>
+                <button onclick="openPage('automation')" class="btn-secondary" id="autoHeroBtn" style="background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.18);color:#fff;display:flex;align-items:center;gap:9px;"><i class="fa-solid fa-bolt" style="color:#6ee7b7;"></i> Open Automation</button>
+            </div>
+            <div style="display:flex;gap:20px;margin-top:55px;flex-wrap:wrap;position:relative;z-index:2;">
+                <!-- Unique Health Ring Metric -->
+                <div style="display:flex;align-items:center;gap:18px;background:rgba(255,255,255,0.06);padding:14px 22px;border-radius:24px;border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);cursor:default;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 24px rgba(0,0,0,0.1)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+                    <div style="position:relative;width:56px;height:56px;">
+                        <svg viewBox="0 0 36 36" style="width:56px;height:56px;transform:rotate(-90deg);">
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3.5"></path>
+                            <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" class="ring-fill" stroke-width="3.5" stroke-dasharray="0, 100" style="animation: drawRing 1.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;"></path>
+                        </svg>
+                        <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:12.5px;font-weight:700;color:#fff;" class="serif">92%</div>
+                    </div>
+                    <div>
+                        <div style="color:#fff;font-size:14.5px;font-weight:700;margin-bottom:2px;letter-spacing:0.02em;">Adherence</div>
+                        <div style="color:rgba(255,255,255,0.5);font-size:11.5px;text-transform:uppercase;letter-spacing:0.04em;">Health Score</div>
+                    </div>
+                </div>
+                
+                <!-- Stat Card 1 -->
+                <div style="background:rgba(255,255,255,0.02);padding:16px 22px;border-radius:20px;border:1px solid rgba(255,255,255,0.05);min-width:120px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="color:#fff;font-size:1.85rem;font-weight:700;display:flex;align-items:center;gap:8px;line-height:1;" class="serif">14 <i class="fa-solid fa-fire" style="font-size:16px;color:#fbbf24;filter:drop-shadow(0 0 8px rgba(251,191,36,0.4));"></i></div>
+                    <div style="color:rgba(255,255,255,.45);font-size:12px;margin-top:6px;font-weight:500;">Day Streak</div>
+                </div>
+                
+                <!-- Stat Card 2 -->
+                <div style="background:rgba(255,255,255,0.02);padding:16px 22px;border-radius:20px;border:1px solid rgba(255,255,255,0.05);min-width:120px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="color:#fff;font-size:1.85rem;font-weight:700;line-height:1;" class="serif">3</div>
+                    <div style="color:rgba(255,255,255,.45);font-size:12px;margin-top:6px;font-weight:500;">Active Meds</div>
+                </div>
+                
+                <!-- Stat Card 3 -->
+                <div style="background:rgba(255,255,255,0.02);padding:16px 22px;border-radius:20px;border:1px solid rgba(255,255,255,0.05);min-width:120px;display:flex;flex-direction:column;justify-content:center;">
+                    <div style="color:#fff;font-size:1.85rem;font-weight:700;line-height:1;" class="serif">5</div>
+                    <div style="color:rgba(255,255,255,.45);font-size:12px;margin-top:6px;font-weight:500;">Live Actions</div>
+                </div>
+                
+                <style>
+                    .ring-fill { stroke: url(#ringGradient); }
+                    @keyframes drawRing { 0% { stroke-dasharray: 0, 100; } 100% { stroke-dasharray: 92, 100; } }
+                </style>
+                <svg width="0" height="0">
+                    <defs>
+                        <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#2dd4bf" />
+                            <stop offset="100%" stop-color="#0ea5e9" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+        </div>
+    </section>
+
+    <section id="medications" class="app-page" style="padding:76px 24px;background:#fff;">
+        <div class="section-shell">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:36px;gap:16px;flex-wrap:wrap;">
+                <div><h2 class="serif" id="medTitle" style="font-size:2rem;font-weight:500;margin-bottom:5px;">My Medications</h2><p style="color:var(--muted);font-size:14px;">Manage your current prescriptions</p></div>
+                <button onclick="showAddMedModal()" class="btn-primary" style="display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-plus"></i> Add Medicine</button>
+            </div>
+            <div id="medList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px;"></div>
+        </div>
+    </section>
+
+    <section id="reminders" class="app-page" style="padding:76px 24px;background:var(--cream);">
+        <div class="section-shell">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:36px;gap:16px;flex-wrap:wrap;">
+                <div><h2 class="serif" id="remTitle" style="font-size:2rem;font-weight:500;margin-bottom:5px;">Smart Reminders</h2><p style="color:var(--muted);font-size:14px;">Never miss a dose</p></div>
+                <button onclick="addNewReminder()" class="btn-secondary" style="display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-plus"></i> Add Reminder</button>
+            </div>
+            <div id="reminderList" style="display:flex;flex-direction:column;gap:12px;"></div>
+        </div>
+    </section>
+
+    <section id="automation" class="app-page" style="padding:76px 24px;background:linear-gradient(180deg,#fff 0%,#f6fffd 100%);">
+        <div class="section-shell">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:34px;gap:20px;flex-wrap:wrap;">
+                <div>
+                    <p style="color:var(--teal);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px;">Automation Studio</p>
+                    <h2 class="serif" id="automationTitle" style="font-size:2.15rem;font-weight:500;margin-bottom:8px;">Healthcare workflows that run for you</h2>
+                    <p id="automationDesc" style="color:var(--muted);font-size:14px;max-width:620px;line-height:1.7;">Turn care routines into smart automations: refill reminders, missed-dose follow-ups, hydration nudges, and escalation alerts for family or caregivers.</p>
+                </div>
+                <button onclick="focusAutomationBuilder()" class="btn-primary" style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-wand-magic-sparkles"></i> Build Automation</button>
+            </div>
+
+            <div class="automation-grid" style="margin-bottom:24px;">
+                <div class="automation-card" style="background:linear-gradient(135deg,#0f1b2d 0%,#12324e 55%,#0d9488 130%);color:#fff;border:none;">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+                        <div style="max-width:520px;">
+                            <span class="badge" style="background:rgba(255,255,255,.14);color:#d1fae5;">Always-on Care</span>
+                            <h3 class="serif" style="font-size:2rem;font-weight:500;margin:16px 0 10px;">Automation page implementation</h3>
+                            <p style="color:rgba(255,255,255,.72);font-size:14px;line-height:1.8;margin:0 0 24px;">A dedicated control center for recurring patient tasks, with a builder, live status toggles, execution history, and care-safe defaults designed to fit the MediTrack visual system.</p>
+                            <div class="metrics-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
+                                <div class="automation-metric"><div style="font-size:11px;color:rgba(255,255,255,.56);text-transform:uppercase;letter-spacing:.08em;">Running</div><div id="activeAutomationCount" class="serif" style="font-size:2rem;line-height:1.1;margin-top:8px;">0</div></div>
+                                <div class="automation-metric"><div style="font-size:11px;color:rgba(255,255,255,.56);text-transform:uppercase;letter-spacing:.08em;">Success Rate</div><div class="serif" style="font-size:2rem;line-height:1.1;margin-top:8px;">98%</div></div>
+                                <div class="automation-metric"><div style="font-size:11px;color:rgba(255,255,255,.56);text-transform:uppercase;letter-spacing:.08em;">Saved This Week</div><div class="serif" style="font-size:2rem;line-height:1.1;margin-top:8px;">4.8h</div></div>
+                            </div>
+                        </div>
+                        <div style="min-width:240px;max-width:280px;background:rgba(255,255,255,.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:20px;">
+                            <div class="timeline-tag"><i class="fa-solid fa-sparkles"></i> Suggested next run</div>
+                            <p style="font-size:1.1rem;font-weight:700;margin:10px 0 5px;">Medication refill check</p>
+                            <p style="color:rgba(255,255,255,.62);font-size:13px;line-height:1.7;margin-bottom:16px;">Evaluates remaining tablet count and alerts the patient when stock drops below 7 days.</p>
+                            <div style="display:flex;align-items:center;justify-content:space-between;font-size:13px;">
+                                <span style="color:rgba(255,255,255,.58);">Next run</span>
+                                <span style="font-weight:700;">Tomorrow · 8:00 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="automation-panel">
+                    <p style="color:var(--muted);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;">Automation Highlights</p>
+                    <div style="display:grid;gap:14px;">
+                        <div style="padding:18px;border-radius:16px;background:#f8fafc;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                                <div style="width:40px;height:40px;border-radius:12px;background:#ccfbf1;display:flex;align-items:center;justify-content:center;color:var(--teal);"><i class="fa-solid fa-pills"></i></div>
+                                <div><p style="font-weight:700;margin:0;">Dose follow-up</p><p style="font-size:12px;color:var(--muted);margin:3px 0 0;">Escalates only after two missed confirmations</p></div>
+                            </div>
+                        </div>
+                        <div style="padding:18px;border-radius:16px;background:#fff7ed;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                                <div style="width:40px;height:40px;border-radius:12px;background:#fed7aa;display:flex;align-items:center;justify-content:center;color:#c2410c;"><i class="fa-solid fa-prescription-bottle-medical"></i></div>
+                                <div><p style="font-weight:700;margin:0;">Refill planner</p><p style="font-size:12px;color:var(--muted);margin:3px 0 0;">Calculates refill date from quantity and dosage frequency</p></div>
+                            </div>
+                        </div>
+                        <div style="padding:18px;border-radius:16px;background:#fdf2f8;">
+                            <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+                                <div style="width:40px;height:40px;border-radius:12px;background:#fecdd3;display:flex;align-items:center;justify-content:center;color:#be123c;"><i class="fa-solid fa-user-doctor"></i></div>
+                                <div><p style="font-weight:700;margin:0;">Caregiver escalation</p><p style="font-size:12px;color:var(--muted);margin:3px 0 0;">Shares only urgent events to reduce alert fatigue</p></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="automation-toolbar">
+                <div class="filter-pills" id="automationFilters">
+                    <button class="filter-pill active" onclick="setAutomationFilter('all',this)">All</button>
+                    <button class="filter-pill" onclick="setAutomationFilter('active',this)">Active</button>
+                    <button class="filter-pill" onclick="setAutomationFilter('urgent',this)">Urgent</button>
+                    <button class="filter-pill" onclick="setAutomationFilter('draft',this)">Paused</button>
+                </div>
+                <div style="min-width:260px;flex:1;max-width:360px;">
+                    <input id="automationSearch" class="input-field" placeholder="Search automations, triggers, or actions" oninput="renderAutomations()">
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:24px;" id="automationCards"></div>
+
+            <div class="detail-shell">
+                <div class="automation-panel">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                        <div>
+                            <p style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Inspector</p>
+                            <h3 class="serif" style="font-size:1.6rem;font-weight:500;margin:0;">Automation details</h3>
+                        </div>
+                        <span id="automationDetailStatus" class="badge badge-teal">Active</span>
+                    </div>
+                    <div id="automationDetailPanel"></div>
+                </div>
+                <div class="automation-panel">
+                    <p style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Performance Snapshot</p>
+                    <h3 class="serif" style="font-size:1.6rem;font-weight:500;margin:0 0 18px;">Operational health</h3>
+                    <div id="automationAnalytics" style="display:grid;gap:12px;"></div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1.05fr .95fr;gap:24px;align-items:start;">
+                <div class="builder-card" id="automationBuilder">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                        <div>
+                            <p style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Builder</p>
+                            <h3 class="serif" id="automationBuilderTitle" style="font-size:1.6rem;font-weight:500;margin:0;">Create a new automation</h3>
+                        </div>
+                        <span class="badge badge-slate" id="automationBuilderMode">Create mode</span>
+                    </div>
+                    <div class="builder-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                        <div style="grid-column:span 2;"><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Automation Name</label><input id="automationName" class="input-field" placeholder="e.g. Weekend refill reminder"></div>
+                        <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Trigger</label>
+                            <select id="automationTrigger" class="input-field">
+                                <option value="Medication stock below 7 days">Medication stock below 7 days</option>
+                                <option value="Missed dose confirmation">Missed dose confirmation</option>
+                                <option value="Morning wellness check-in">Morning wellness check-in</option>
+                                <option value="Doctor follow-up due">Doctor follow-up due</option>
+                            </select>
+                        </div>
+                        <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Action</label>
+                            <select id="automationAction" class="input-field">
+                                <option value="Send reminder">Send reminder</option>
+                                <option value="Notify caregiver">Notify caregiver</option>
+                                <option value="Create refill task">Create refill task</option>
+                                <option value="Prompt meal suggestion">Prompt meal suggestion</option>
+                            </select>
+                        </div>
+                        <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Schedule</label><input id="automationSchedule" class="input-field" value="Every day at 8:00 AM"></div>
+                        <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Priority</label>
+                            <select id="automationPriority" class="input-field">
+                                <option value="Routine">Routine</option>
+                                <option value="Important">Important</option>
+                                <option value="Urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div style="grid-column:span 2;"><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Safety Note</label><textarea id="automationSafety" class="input-field" rows="3" placeholder="Only escalate after missed doses for 2 consecutive reminders."></textarea></div>
+                    </div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:20px;">
+                        <button onclick="createAutomationFromForm()" id="automationSubmitBtn" class="btn-primary" style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-plus"></i> Save Automation</button>
+                        <button onclick="loadAutomationTemplate()" class="btn-secondary" style="display:flex;align-items:center;gap:8px;"><i class="fa-solid fa-layer-group"></i> Load Example</button>
+                        <button onclick="resetAutomationForm()" id="automationCancelBtn" class="btn-secondary" style="display:none;align-items:center;gap:8px;"><i class="fa-solid fa-rotate-left"></i> Cancel Edit</button>
+                    </div>
+                </div>
+
+                <div class="automation-panel">
+                    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px;">
+                        <div>
+                            <p style="font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Execution Feed</p>
+                            <h3 class="serif" style="font-size:1.6rem;font-weight:500;margin:0;">Recent activity</h3>
+                        </div>
+                        <span class="badge badge-teal">Live</span>
+                    </div>
+                    <div id="automationTimeline" style="display:flex;flex-direction:column;gap:12px;"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="checker" class="app-page" style="padding:76px 24px;background:#fff;">
+        <div style="max-width:720px;margin:0 auto;">
+            <h2 class="serif" id="checkerTitle" style="font-size:2rem;font-weight:500;margin-bottom:7px;">Medicine Checker</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:28px;">Enter a medicine name to see its uses, dosage, side effects, and warnings.</p>
+            <div style="display:flex;gap:11px;flex-wrap:wrap;">
+                <input id="medicineNameCheck" class="input-field" placeholder="e.g. Metformin, Paracetamol, Aspirin..." style="flex:1;min-width:180px;background:#fff;">
+                <button onclick="checkMedicine()" class="btn-primary" style="display:flex;align-items:center;gap:7px;white-space:nowrap;"><i class="fa-solid fa-search"></i> Check</button>
+            </div>
+            <div id="checkResult" style="margin-top:18px;"></div>
+        </div>
+    </section>
+
+    <section id="diet" class="app-page" style="padding:76px 24px;background:var(--cream);">
+        <div style="max-width:720px;margin:0 auto;">
+            <h2 class="serif" id="dietTitle" style="font-size:2rem;font-weight:500;margin-bottom:7px;">Personalized Diet Plan</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:32px;">Get a diet plan based on your health conditions and medication requirements.</p>
+            <div style="background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:28px;margin-bottom:22px;">
+                <p style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">Diet Preference</p>
+                <div style="display:flex;gap:9px;margin-bottom:26px;flex-wrap:wrap;">
+                    <button onclick="setDietType('veg')" id="vegBtn" style="padding:9px 20px;border:1.5px solid var(--teal);background:rgba(13,148,136,.08);color:var(--teal);border-radius:999px;font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;">🥗 Vegetarian</button>
+                    <button onclick="setDietType('nonveg')" id="nonvegBtn" style="padding:9px 20px;border:1.5px solid var(--border);background:transparent;color:var(--navy);border-radius:999px;font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;">🍗 Non-Vegetarian</button>
+                    <button onclick="setDietType('vegan')" id="veganBtn" style="padding:9px 20px;border:1.5px solid var(--border);background:transparent;color:var(--navy);border-radius:999px;font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;">🌱 Vegan</button>
+                </div>
+                <div style="display:grid;gap:14px;grid-template-columns:1fr 1fr;">
+                    <div><label id="allergyLabel" style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Allergies / Dislikes</label><input id="foodAllergy" class="input-field" placeholder="e.g. Nuts, Dairy..."></div>
+                    <div><label id="conditionLabel" style="font-size:11px;font-weight:700;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;">Health Conditions</label><input id="healthCondition" class="input-field" placeholder="e.g. Diabetes, BP..."></div>
+                </div>
+                <button onclick="generateDietPlan()" class="btn-primary" id="generateBtn" style="margin-top:22px;display:flex;align-items:center;gap:7px;"><i class="fa-solid fa-utensils"></i> Generate My Diet Plan</button>
+            </div>
+            <div id="dietResult"></div>
+        </div>
+    </section>
+
+    <section id="education" class="app-page" style="padding:76px 24px;background:#fff;">
+        <div class="section-shell">
+            <h2 class="serif" id="eduTitle" style="font-size:2rem;font-weight:500;margin-bottom:7px;">Health Education Hub</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:36px;">Learn about medicines, prescriptions, and healthy living</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;">
+                <div class="edu-card" onclick="showArticle(1)">
+                    <div style="font-size:34px;margin-bottom:14px;">📋</div>
+                    <h4 class="serif" id="edu1" style="font-size:1.1rem;font-weight:500;margin-bottom:7px;">How to Read a Prescription</h4>
+                    <p style="font-size:13px;color:var(--muted);line-height:1.6;">Understand what your doctor wrote and what each field means.</p>
+                    <div style="margin-top:14px;color:var(--teal);font-size:13px;font-weight:600;">Read more →</div>
+                </div>
+                <div class="edu-card" onclick="showArticle(2)">
+                    <div style="font-size:34px;margin-bottom:14px;">🛡️</div>
+                    <h4 class="serif" id="edu2" style="font-size:1.1rem;font-weight:500;margin-bottom:7px;">Safe Use of Medicines</h4>
+                    <p style="font-size:13px;color:var(--muted);line-height:1.6;">Best practices for storing, taking, and disposing medications.</p>
+                    <div style="margin-top:14px;color:var(--teal);font-size:13px;font-weight:600;">Read more →</div>
+                </div>
+                <div class="edu-card" onclick="showArticle(3)">
+                    <div style="font-size:34px;margin-bottom:14px;">🧘</div>
+                    <h4 class="serif" id="edu3" style="font-size:1.1rem;font-weight:500;margin-bottom:7px;">Yoga &amp; Lifestyle Tips</h4>
+                    <p style="font-size:13px;color:var(--muted);line-height:1.6;">Complement your medication with healthy habits and exercises.</p>
+                    <div style="margin-top:14px;color:var(--teal);font-size:13px;font-weight:600;">Read more →</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="progress" class="app-page" style="padding:76px 24px;background:var(--cream);">
+        <div class="section-shell">
+            <h2 class="serif" id="progTitle" style="font-size:2rem;font-weight:500;margin-bottom:7px;">Adherence Progress</h2>
+            <p style="color:var(--muted);font-size:14px;margin-bottom:36px;">Your medication tracking overview</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px;">
+                <div class="stat-box"><div class="serif" style="font-size:3rem;font-weight:500;color:var(--teal);">92%</div><div style="font-weight:600;margin-bottom:8px;font-size:14px;">This Month</div><div class="prog-bar"><div class="prog-fill" style="width:92%;"></div></div></div>
+                <div class="stat-box"><div class="serif" style="font-size:3rem;font-weight:500;color:var(--navy);">14</div><div style="font-weight:600;font-size:14px;">Day Streak</div><div style="font-size:22px;margin-top:8px;">🔥</div></div>
+                <div class="stat-box" style="grid-column:span 2;">
+                    <p style="font-weight:600;margin-bottom:14px;text-align:left;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;">Last 7 Days</p>
+                    <div style="display:flex;align-items:flex-end;gap:7px;height:100px;">
+                        <div class="chart-bar" style="height:65%;"></div><div class="chart-bar" style="height:85%;"></div><div class="chart-bar" style="height:100%;"></div><div class="chart-bar" style="height:70%;"></div><div class="chart-bar" style="height:90%;"></div><div class="chart-bar" style="height:80%;"></div><div class="chart-bar" style="height:95%;"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-around;margin-top:7px;">
+                        <span style="font-size:11px;color:var(--muted);">Mon</span><span style="font-size:11px;color:var(--muted);">Tue</span><span style="font-size:11px;color:var(--muted);">Wed</span><span style="font-size:11px;color:var(--muted);">Thu</span><span style="font-size:11px;color:var(--muted);">Fri</span><span style="font-size:11px;color:var(--muted);">Sat</span><span style="font-size:11px;color:var(--muted);">Sun</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer style="padding:52px 24px 24px;">
+        <div class="section-shell" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:28px;">
+            <div>
+                <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
+                    <svg width="28" height="28" viewBox="0 0 46 46" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="46" height="46" rx="13" fill="#0d9488"/><polyline points="5,23 12,23 15,14 19,32 23,18 27,28 30,23 41,23" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
+                    <span class="serif" style="color:#fff;font-size:1.25rem;font-weight:500;">MediTrack</span>
+                </div>
+                <p style="color:rgba(255,255,255,.3);font-size:13px;">Your personal medication companion</p>
+            </div>
+            <div>
+                <p style="color:rgba(255,255,255,.4);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;">Connect</p>
+                <div style="display:flex;gap:18px;font-size:24px;">
+                    <a href="https://wa.me/919392834852" target="_blank" style="color:rgba(255,255,255,.4);" onmouseover="this.style.color='#4ade80'" onmouseout="this.style.color='rgba(255,255,255,.4)'"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://www.linkedin.com/in/reethika-kothamasu-679a50349/" target="_blank" style="color:rgba(255,255,255,.4);" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='rgba(255,255,255,.4)'"><i class="fa-brands fa-linkedin"></i></a>
+                    <a href="mailto:reethu1053@gmail.com" style="color:rgba(255,255,255,.4);" onmouseover="this.style.color='#f87171'" onmouseout="this.style.color='rgba(255,255,255,.4)'"><i class="fa-solid fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="section-shell" style="margin-top:24px;border-top:1px solid rgba(255,255,255,.07);padding-top:18px;text-align:center;">
+            <p style="color:rgba(255,255,255,.2);font-size:12px;">© 2026 MediTrack • All Rights Reserved</p>
+        </div>
+    </footer>
+</div>
+
+<div style="position:fixed;bottom:26px;right:26px;display:flex;flex-direction:column;gap:11px;z-index:9999;">
+    <button onclick="showEmergencyMedicines()" title="Emergency Medicines" style="width:48px;height:48px;background:#fff;border:1.5px solid var(--border);border-radius:13px;font-size:19px;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,.1);transition:transform .2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🏥</button>
+    <button onclick="callEmergency()" title="Emergency 108" style="width:54px;height:54px;background:#e11d48;border:none;border-radius:13px;font-size:23px;cursor:pointer;box-shadow:0 8px 22px rgba(225,29,72,.4);transition:transform .2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🚨</button>
+</div>
+
+<div id="addMedModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center;padding:16px;">
+    <div class="modal-box" style="background:#fff;border-radius:22px;padding:32px;width:100%;max-width:660px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+            <h3 class="serif" id="addMedTitle" style="font-size:1.45rem;font-weight:500;">Add New Medicine</h3>
+            <button onclick="hideAddMedModal()" style="background:none;border:none;font-size:21px;cursor:pointer;color:var(--muted);">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:13px;">
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Medicine Name</label><input id="medName" class="input-field" placeholder="e.g. Metformin"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Concentration</label><input id="medConcentration" class="input-field" placeholder="e.g. 500mg"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Mfg Date</label><input id="medMfg" type="date" class="input-field"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Expiry Date</label><input id="medExpiry" type="date" class="input-field"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Quantity (tablets)</label><input id="medQuantity" type="number" class="input-field" placeholder="e.g. 30"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Frequency</label>
+                <select id="medFrequency" class="input-field"><option value="">Select...</option><option value="Once daily">Once daily</option><option value="Twice daily">Twice daily</option><option value="Thrice daily">Thrice daily</option><option value="Every 8 hours">Every 8 hours</option></select>
+            </div>
+            <div style="grid-column:span 2;"><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Usage / Indication</label><textarea id="medUsage" class="input-field" rows="2" placeholder="What is this medicine prescribed for?"></textarea></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Patient Age</label><input id="medAge" type="number" class="input-field" value="32"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Dietary Habits</label><input id="medDiet" class="input-field" placeholder="e.g. Diabetic Friendly"></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Yoga Recommendations</label><textarea id="medYoga" class="input-field" rows="2" placeholder="e.g. Pranayama 10 min daily"></textarea></div>
+            <div><label style="font-size:10px;font-weight:700;color:var(--muted);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;">Exercise Recommendations</label><textarea id="medExercise" class="input-field" rows="2" placeholder="e.g. 30 min brisk walk"></textarea></div>
+        </div>
+        <div style="display:flex;gap:11px;margin-top:24px;">
+            <button onclick="cancelMedicationForm()" class="btn-secondary" style="flex:1;padding:12px;" id="medCancelBtn">Cancel</button>
+            <button onclick="saveMedicine()" class="btn-primary" style="flex:1;padding:12px;" id="medSubmitBtn">Save Medicine</button>
+        </div>
+    </div>
+</div>
+
+<div id="emergencyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center;padding:16px;">
+    <div class="modal-box" style="background:#fff;border-radius:22px;padding:32px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+            <h3 class="serif" id="emergencyTitle" style="font-size:1.4rem;font-weight:500;color:#e11d48;">🩹 Emergency Medicines</h3>
+            <button onclick="hideEmergencyModal()" style="background:none;border:none;font-size:21px;cursor:pointer;color:var(--muted);">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+            <div style="border:1px solid var(--border);border-radius:13px;padding:17px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><p style="font-weight:700;font-size:14px;">Paracetamol 500mg</p><span class="badge badge-amber">OTC</span></div>
+                <p id="paraDesc" style="font-size:13px;color:var(--muted);">For fever, headache, mild pain</p>
+                <p id="paraDose" style="font-size:12px;margin-top:5px;">Dosage: 1 tablet every 6-8 hours (max 4/day)</p>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:13px;padding:17px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><p style="font-weight:700;font-size:14px;">ORS (Oral Rehydration Salts)</p><span class="badge badge-teal">OTC</span></div>
+                <p id="orsDesc" style="font-size:13px;color:var(--muted);">For dehydration due to diarrhea or vomiting</p>
+                <p id="orsDose" style="font-size:12px;margin-top:5px;">Mix 1 sachet in 1 liter water. Drink frequently.</p>
+            </div>
+            <div style="border:1px solid var(--border);border-radius:13px;padding:17px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><p style="font-weight:700;font-size:14px;">Antacid (Gelusil / Digene)</p><span class="badge badge-amber">OTC</span></div>
+                <p id="antacidDesc" style="font-size:13px;color:var(--muted);">For acidity, heartburn, indigestion</p>
+                <p id="antacidDose" style="font-size:12px;margin-top:5px;">Dosage: 1-2 tablets after meals or as needed</p>
+            </div>
+        </div>
+        <button onclick="hideEmergencyModal()" id="closeBtn" class="btn-secondary" style="width:100%;padding:12px;margin-top:22px;">Close</button>
+    </div>
+</div>
+
+<div id="articleModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:99999;align-items:center;justify-content:center;padding:16px;">
+    <div class="modal-box" style="background:#fff;border-radius:22px;padding:32px;width:100%;max-width:600px;max-height:84vh;overflow-y:auto;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;">
+            <h3 class="serif" id="articleTitle" style="font-size:1.35rem;font-weight:500;"></h3>
+            <button onclick="hideArticleModal()" style="background:none;border:none;font-size:21px;cursor:pointer;color:var(--muted);">✕</button>
+        </div>
+        <div id="articleContent" style="font-size:14px;line-height:1.8;color:#374151;"></div>
+    </div>
+</div>
+
+<script>
+const T={
+    en:{authTitle:"MediTrack",navTitle:"MediTrack",navMed:"My Medications",navRem:"Reminders",navAuto:"Automation",navEdu:"Education",navProg:"Progress",heroTitleHtml:"Medication made simple,<br><em style=\"color:#5eead4;\">for every patient</em>",heroDesc:"Track your medicines, set reminders, automate recurring care tasks, get diet plans, and stay on top of your health.",startBtn:"Start Managing",autoHeroBtn:"Open Automation",medTitle:"My Medications",checkerTitle:"Medicine Checker",remTitle:"Smart Reminders",dietTitle:"Personalized Diet Plan",allergyLabel:"Allergies / Dislikes",conditionLabel:"Health Conditions",generateBtn:"Generate My Diet Plan",eduTitle:"Health Education Hub",edu1:"How to Read a Prescription",edu2:"Safe Use of Medicines",edu3:"Yoga & Lifestyle Tips",progTitle:"Adherence Progress",addMedTitle:"Add New Medicine",emergencyTitle:"🩹 Emergency Medicines",paraDesc:"For fever, headache, mild pain",paraDose:"Dosage: 1 tablet every 6-8 hours (max 4/day)",orsDesc:"For dehydration due to diarrhea or vomiting",orsDose:"Mix 1 sachet in 1 liter water. Drink frequently.",antacidDesc:"For acidity, heartburn, indigestion",antacidDose:"Dosage: 1-2 tablets after meals or as needed",closeBtn:"Close",logoutText:"Logout",automationTitle:"Healthcare workflows that run for you",automationDesc:"Turn care routines into smart automations: refill reminders, missed-dose follow-ups, hydration nudges, and escalation alerts for family or caregivers."},
+    hi:{authTitle:"मेडीट्रैक",navTitle:"मेडीट्रैक",navMed:"मेरी दवाइयाँ",navRem:"रिमाइंडर",navAuto:"ऑटोमेशन",navEdu:"शिक्षा",navProg:"प्रगति",heroTitleHtml:"हर मरीज के लिए दवा आसान,<br><em style=\"color:#5eead4;\">समय पर और सरल</em>",heroDesc:"दवाओं को ट्रैक करें, रिमाइंडर सेट करें, केयर ऑटोमेशन चलाएं और डाइट प्लान पाएं।",startBtn:"मैनेजमेंट शुरू करें",autoHeroBtn:"ऑटोमेशन खोलें",medTitle:"मेरी दवाइयाँ",checkerTitle:"दवा चेकर",remTitle:"स्मार्ट रिमाइंडर",dietTitle:"व्यक्तिगत डाइट प्लान",allergyLabel:"एलर्जी / नापसंद",conditionLabel:"स्वास्थ्य समस्याएं",generateBtn:"मेरा डाइट प्लान बनाएं",eduTitle:"स्वास्थ्य शिक्षा हब",edu1:"प्रिस्क्रिप्शन कैसे पढ़ें",edu2:"दवाओं का सुरक्षित उपयोग",edu3:"योग और लाइफस्टाइल टिप्स",progTitle:"दवा पालन प्रगति",addMedTitle:"नई दवा जोड़ें",emergencyTitle:"🩹 आपातकालीन दवाइयाँ",paraDesc:"बुखार, सिरदर्द, हल्का दर्द के लिए",paraDose:"हर 6-8 घंटे में 1 गोली (अधिकतम 4)",orsDesc:"दस्त/उल्टी से निर्जलीकरण के लिए",orsDose:"1 लीटर पानी में 1 सैशे मिलाएं।",antacidDesc:"एसिडिटी, हार्टबर्न के लिए",antacidDose:"भोजन के बाद 1-2 गोली",closeBtn:"बंद करें",logoutText:"लॉगआउट",automationTitle:"आपके लिए चलने वाले हेल्थकेयर वर्कफ़्लो",automationDesc:"रिफिल रिमाइंडर, मिस्ड डोज फॉलो-अप और केयरगिवर अलर्ट जैसे कार्यों को स्मार्ट ऑटोमेशन में बदलें।"},
+    te:{authTitle:"మెడిట్రాక్",navTitle:"మెడిట్రాక్",navMed:"నా మందులు",navRem:"రిమైండర్లు",navAuto:"ఆటోమేషన్",navEdu:"విద్య",navProg:"ప్రోగ్రెస్",heroTitleHtml:"ప్రతి రోగికి మందులు సులభం,<br><em style=\"color:#5eead4;\">సమయంలోనే సహాయం</em>",heroDesc:"మీ మందులను ట్రాక్ చేయండి, రిమైండర్లు సెట్ చేయండి, కేర్ ఆటోమేషన్ నడపండి, డైట్ ప్లాన్ పొందండి.",startBtn:"నిర్వహణ ప్రారంభించండి",autoHeroBtn:"ఆటోమేషన్ తెరువు",medTitle:"నా మందులు",checkerTitle:"మందు చెకర్",remTitle:"స్మార్ట్ రిమైండర్లు",dietTitle:"వ్యక్తిగత డైట్ ప్లాన్",allergyLabel:"అలర్జీలు / అయిష్టాలు",conditionLabel:"ఆరోగ్య సమస్యలు",generateBtn:"నా డైట్ ప్లాన్ రూపొందించండి",eduTitle:"ఆరోగ్య విద్యా కేంద్రం",edu1:"ప్రెస్క్రిప్షన్ ఎలా చదవాలి",edu2:"మందుల సురక్షిత వాడకం",edu3:"యోగా & లైఫ్‌స్టైల్ టిప్స్",progTitle:"మందుల పాటించడం ప్రోగ్రెస్",addMedTitle:"కొత్త మందు జోడించండి",emergencyTitle:"🩹 అత్యవసర మందులు",paraDesc:"జ్వరం, తలనొప్పికి",paraDose:"ప్రతి 6-8 గంటలకు 1 టాబ్లెట్",orsDesc:"నిర్జలీకరణకు",orsDose:"1 లీటర్ నీటిలో 1 సాచె కలపండి.",antacidDesc:"ఆమ్లత్వం కోసం",antacidDose:"భోజనం తర్వాత 1-2 టాబ్లెట్లు",closeBtn:"మూసివేయి",logoutText:"లాగౌట్",automationTitle:"మీ కోసం నడిచే హెల్త్ వర్క్‌ఫ్లోలు",automationDesc:"రిఫిల్ రిమైండర్లు, మిస్డ్ డోస్ ఫాలో-అప్స్, కేర్‌గివర్ అలర్ట్స్ వంటి పనులను స్మార్ట్ ఆటోమేషన్‌గా మార్చండి."}
+};
+
+let medications=[];
+let selectedDietType='veg';
+let automations=[];
+let automationEvents=[];
+let selectedAutomationId=1;
+let automationFilter='all';
+let automationFormMode='create';
+let editingAutomationId=null;
+let medicationFormMode='create';
+let editingMedicationIndex=null;
+const rtimes=['8:00 AM','2:00 PM','8:00 PM','6:00 AM'];
+const STORAGE_KEY='meditrack-app-state-v1';
+const PAGE_IDS=['home','medications','reminders','automation','checker','diet','education','progress'];
+const PAGE_NAV_IDS={home:'navHome',medications:'navMed',reminders:'navRem',automation:'navAuto',checker:'navCheck',diet:'navDiet',education:'navEdu',progress:'navProg'};
+
+function getPageFromHash(){
+    const hash=window.location.hash.replace('#','').trim();
+    return PAGE_IDS.includes(hash)?hash:'home';
+}
+
+function openPage(id,updateHash=true){
+    if(window.event)window.event.preventDefault();
+    const safePage=PAGE_IDS.includes(id)?id:'home';
+    PAGE_IDS.forEach(pageId=>{
+        const section=document.getElementById(pageId);
+        if(section)section.classList.toggle('active',pageId===safePage);
+    });
+    Object.values(PAGE_NAV_IDS).forEach(navId=>{
+        const navItem=document.getElementById(navId);
+        if(navItem)navItem.classList.remove('nav-active');
+    });
+    const activeNav=document.getElementById(PAGE_NAV_IDS[safePage]);
+    if(activeNav)activeNav.classList.add('nav-active');
+    if(updateHash && window.location.hash!==`#${safePage}`){
+        history.pushState(null,'',`#${safePage}`);
+    }
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function changeLanguage(){
+    const t=T[document.getElementById('languageSelect').value];
+    Object.keys(t).forEach(k=>{
+        const el=document.getElementById(k);
+        if(el)el.textContent=t[k];
+    });
+    const heroTitle=document.getElementById('heroTitle');
+    if(heroTitle && t.heroTitleHtml) heroTitle.innerHTML=t.heroTitleHtml;
+    setButtonLabel('startBtn','fa-pills',t.startBtn);
+    setButtonLabel('autoHeroBtn','fa-bolt',t.autoHeroBtn,'#6ee7b7');
+    setButtonLabel('generateBtn','fa-utensils',t.generateBtn);
+    setButtonLabel('logoutText','fa-right-from-bracket',t.logoutText);
+    persistAppState();
+}
+
+function setButtonLabel(id,iconClass,label,iconColor=''){
+    const el=document.getElementById(id);
+    if(!el) return;
+    const colorStyle=iconColor?` style="color:${iconColor};"`:'';
+    el.innerHTML=`<i class="fa-solid ${iconClass}"${colorStyle}></i> ${label}`;
+}
+
+function getDisplayName(email,fullName){
+    if(fullName) return fullName;
+    const prefix=email.split('@')[0];
+    return prefix.charAt(0).toUpperCase()+prefix.slice(1);
+}
+
+function setUserProfile(displayName,email){
+    document.getElementById('userName').textContent=displayName;
+    document.getElementById('userSubtitle').textContent=email;
+}
+
+function handleLogin(){
+    const email=document.getElementById('loginEmail').value.trim()||'reethika@dtm.com';
+    const displayName=getDisplayName(email,'');
+    document.getElementById('authScreen').style.display='none';
+    document.getElementById('mainApp').style.display='block';
+    setUserProfile(displayName,email);
+    loadSampleData();
+    openPage(getPageFromHash(),false);
+}
+
+function handleRegister(){
+    const name=document.getElementById('regName').value.trim();
+    const email=document.getElementById('regEmail').value.trim();
+    if(!name||!email){showToast('Please fill in all fields','amber');return;}
+    showToast('Account created! Please login.');
+    switchTab(0);
+    document.getElementById('loginEmail').value=email;
+}
+
+function switchTab(n){
+    document.getElementById('loginForm').style.display=n===0?'block':'none';
+    document.getElementById('registerForm').style.display=n===1?'block':'none';
+    document.getElementById('loginTab').className=n===0?'tab-active':'';
+    document.getElementById('loginTab').style.color=n===0?'var(--teal)':'var(--muted)';
+    document.getElementById('registerTab').className=n===1?'tab-active':'';
+    document.getElementById('registerTab').style.color=n===1?'var(--teal)':'var(--muted)';
+}
+
+function logout(){if(confirm('Are you sure you want to logout?'))location.reload();}
+
+function loadSampleData(){
+    const savedState=loadPersistedState();
+    if(savedState){
+        medications=savedState.medications||[];
+        automations=savedState.automations||[];
+        automationEvents=savedState.automationEvents||[];
+        selectedDietType=savedState.selectedDietType||'veg';
+        selectedAutomationId=savedState.selectedAutomationId || (automations[0]?.id ?? 1);
+        const savedLanguage=savedState.language || 'en';
+        document.getElementById('languageSelect').value=savedLanguage;
+        changeLanguage();
+        setDietType(selectedDietType);
+        renderMedications();
+        renderReminders();
+        renderAutomations();
+        resetAutomationForm();
+        openPage(getPageFromHash(),false);
+        return;
+    }
+    medications=[
+        {name:"Metformin",concentration:"500mg",mfg:"2025-01-10",expiry:"2027-01-10",usage:"Type 2 Diabetes management",age:"32",diet:"Diabetic Friendly",yoga:"Pranayama 10 min daily",exercise:"30 min brisk walk",frequency:"Twice daily",quantity:"60",sideEffects:"Nausea, stomach upset, diarrhea",dosDonts:"Take with meals • Monitor blood sugar • Avoid alcohol"},
+        {name:"Amlodipine",concentration:"5mg",mfg:"2025-02-01",expiry:"2027-02-01",usage:"Blood pressure control",age:"32",diet:"Low sodium",yoga:"Anulom Vilom 8 min",exercise:"20 min evening walk",frequency:"Once daily",quantity:"28",sideEffects:"Dizziness, ankle swelling",dosDonts:"Take at same time daily • Monitor BP"},
+        {name:"Vitamin D3",concentration:"600 IU",mfg:"2025-01-03",expiry:"2027-01-03",usage:"Bone health support",age:"32",diet:"Protein rich",yoga:"Sun exposure 15 min",exercise:"Stretching routine",frequency:"Once daily",quantity:"20",sideEffects:"Rare at normal doses",dosDonts:"Do not exceed prescribed dose"}
+    ];
+    automations=[
+        {id:1,name:"Low stock refill planner",trigger:"Medication stock below 7 days",action:"Create refill task",schedule:"Every day at 8:00 AM",priority:"Important",note:"Checks remaining quantity and surfaces refill task before gaps happen.",enabled:true,stat:"Refill task created 2 days early",icon:"fa-prescription-bottle-medical",reliability:98,coverage:82,lastRun:"Today · 8:00 AM",nextRun:"Tomorrow · 8:00 AM",owner:"Patient app",guardrail:"Never creates duplicate refill tasks within 48 hours."},
+        {id:2,name:"Missed dose caregiver alert",trigger:"Missed dose confirmation",action:"Notify caregiver",schedule:"After 2 missed reminders",priority:"Urgent",note:"Escalates only after two missed confirmations to avoid unnecessary panic.",enabled:true,stat:"0 escalations this week",icon:"fa-user-doctor",reliability:96,coverage:74,lastRun:"Yesterday · 7:30 PM",nextRun:"When 2 doses are missed",owner:"Care circle",guardrail:"Escalation is blocked if the next scheduled dose is confirmed in time."},
+        {id:3,name:"Morning hydration nudge",trigger:"Morning wellness check-in",action:"Send reminder",schedule:"Daily at 9:30 AM",priority:"Routine",note:"Pairs hydration and breakfast guidance with morning medications.",enabled:true,stat:"Opened by patient 6 of 7 days",icon:"fa-glass-water",reliability:99,coverage:88,lastRun:"Today · 9:30 AM",nextRun:"Tomorrow · 9:30 AM",owner:"Patient app",guardrail:"Skipped if medication intake was already logged in the last 60 minutes."},
+        {id:4,name:"Doctor follow-up prep",trigger:"Doctor follow-up due",action:"Send reminder",schedule:"3 days before appointment",priority:"Important",note:"Prompts patient to carry medication list and recent symptoms.",enabled:false,stat:"Next appointment sync pending",icon:"fa-calendar-check",reliability:91,coverage:65,lastRun:"Not run yet",nextRun:"Waiting for appointment",owner:"Calendar sync",guardrail:"Remains paused until a consultation date is connected."},
+        {id:5,name:"Food after-dose prompt",trigger:"Missed dose confirmation",action:"Prompt meal suggestion",schedule:"Within 10 minutes",priority:"Routine",note:"Suggests suitable snack timing for medicines that should be taken with food.",enabled:true,stat:"Triggered 4 times this month",icon:"fa-utensils",reliability:94,coverage:71,lastRun:"Today · 1:10 PM",nextRun:"On next missed-with-food event",owner:"Nutrition engine",guardrail:"Suppresses suggestions for fasting schedules or restricted diets."}
+    ];
+    selectedAutomationId=automations[0].id;
+    automationEvents=[
+        {tag:"Completed",time:"Today · 8:00 AM",title:"Refill planner checked remaining quantity for Metformin",detail:"Stock projected to last 9 days. No refill task created yet.",tone:"teal"},
+        {tag:"Attention",time:"Today · 10:15 AM",title:"Hydration nudge skipped because dose already confirmed",detail:"Guardrail prevented a duplicate reminder.",tone:"amber"},
+        {tag:"Completed",time:"Yesterday · 7:30 PM",title:"Missed dose follow-up delivered to patient",detail:"Caregiver escalation was not triggered because the next dose was confirmed.",tone:"teal"},
+        {tag:"Draft",time:"Yesterday · 4:00 PM",title:"Doctor follow-up prep waiting for appointment date",detail:"Turn it on after linking your next consultation.",tone:"slate"}
+    ];
+    renderMedications();
+    renderReminders();
+    renderAutomations();
+    resetAutomationForm();
+    persistAppState();
+    openPage(getPageFromHash(),false);
+}
+
+function persistAppState(){
+    try{
+        const payload={
+            medications,
+            automations,
+            automationEvents,
+            selectedDietType,
+            selectedAutomationId,
+            language:document.getElementById('languageSelect')?.value || 'en'
+        };
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(payload));
+    }catch(error){
+        console.warn('Unable to persist app state',error);
+    }
+}
+
+function loadPersistedState(){
+    try{
+        const raw=localStorage.getItem(STORAGE_KEY);
+        if(!raw) return null;
+        return JSON.parse(raw);
+    }catch(error){
+        console.warn('Unable to load saved state',error);
+        return null;
+    }
+}
+
+function updateAutomationBuilderUI(){
+    const isEdit=automationFormMode==='edit';
+    document.getElementById('automationBuilderTitle').textContent=isEdit?'Edit automation':'Create a new automation';
+    document.getElementById('automationBuilderMode').textContent=isEdit?'Edit mode':'Create mode';
+    document.getElementById('automationCancelBtn').style.display=isEdit?'inline-flex':'none';
+    document.getElementById('automationSubmitBtn').innerHTML=isEdit
+        ?'<i class="fa-solid fa-floppy-disk"></i> Update Automation'
+        :'<i class="fa-solid fa-plus"></i> Save Automation';
+}
+
+function resetAutomationForm(){
+    automationFormMode='create';
+    editingAutomationId=null;
+    document.getElementById('automationName').value='';
+    document.getElementById('automationTrigger').value='Medication stock below 7 days';
+    document.getElementById('automationAction').value='Send reminder';
+    document.getElementById('automationSchedule').value='Every day at 8:00 AM';
+    document.getElementById('automationPriority').value='Routine';
+    document.getElementById('automationSafety').value='';
+    updateAutomationBuilderUI();
+}
+
+function editAutomation(id){
+    const automation=automations.find(item=>item.id===id);
+    if(!automation) return;
+    automationFormMode='edit';
+    editingAutomationId=id;
+    document.getElementById('automationName').value=automation.name;
+    document.getElementById('automationTrigger').value=automation.trigger;
+    document.getElementById('automationAction').value=automation.action;
+    document.getElementById('automationSchedule').value=automation.schedule;
+    document.getElementById('automationPriority').value=automation.priority;
+    document.getElementById('automationSafety').value=automation.guardrail || automation.note || '';
+    updateAutomationBuilderUI();
+    focusAutomationBuilder();
+}
+
+function deleteAutomation(id){
+    const automation=automations.find(item=>item.id===id);
+    if(!automation) return;
+    if(!confirm(`Delete "${automation.name}"?`)) return;
+    automations=automations.filter(item=>item.id!==id);
+    automationEvents.unshift({tag:'Deleted',time:'Just now',title:`${automation.name} removed`,detail:'The automation was deleted from the dashboard and will no longer run.',tone:'slate'});
+    automationEvents=automationEvents.slice(0,6);
+    selectedAutomationId=automations[0]?.id || 1;
+    resetAutomationForm();
+    renderAutomations();
+    persistAppState();
+    showToast(`${automation.name} deleted`,'amber');
+}
+
+function renderMedications(){
+    const c=document.getElementById('medList');
+    if(!medications.length){
+        c.innerHTML='<div style="grid-column:span 3;text-align:center;padding:56px 0;color:var(--muted);"><div style="font-size:42px;margin-bottom:12px;">💊</div><p style="font-size:15px;font-weight:500;">No medicines added yet.</p><p style="font-size:13px;margin-top:4px;">Click "Add Medicine" to get started.</p></div>';
+        return;
+    }
+    c.innerHTML=medications.map((m,index)=>{
+        const d=new Date(m.expiry),t=new Date(),dl=Math.ceil((d-t)/86400000);
+        const eb=dl<0?'<span class="badge badge-rose">Expired!</span>':dl<30?`<span class="badge badge-amber">Exp. in ${dl}d</span>`:'<span class="badge badge-teal">Valid</span>';
+        return `<div class="med-card" style="padding:24px;"><div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:13px;"><div style="width:46px;height:46px;background:linear-gradient(135deg,#ccfbf1,#99f6e4);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px;">💊</div>${eb}</div><h4 style="font-size:1.1rem;font-weight:700;margin-bottom:3px;">${m.name}</h4><p style="color:var(--muted);font-size:13px;margin-bottom:12px;">${m.concentration} • ${m.quantity} tablets • ${m.frequency}</p><div style="border-top:1px solid var(--border);padding-top:11px;display:flex;flex-direction:column;gap:4px;"><p style="font-size:13px;"><span style="color:var(--muted);">For:</span> ${m.usage}</p><p style="font-size:12px;color:#e11d48;">⚠️ ${m.sideEffects}</p><p style="font-size:12px;color:#b45309;">📌 ${m.dosDonts}</p><p style="font-size:12px;color:var(--teal);">🧘 ${m.yoga}</p><p style="font-size:12px;color:var(--teal);">🏃 ${m.exercise}</p></div><div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;"><button onclick="editMedicine(${index})" class="btn-secondary" style="padding:8px 14px;font-size:12px;">Edit</button><button onclick="deleteMedicine(${index})" class="btn-secondary" style="padding:8px 14px;font-size:12px;border-color:#fda4af;color:#be123c;">Delete</button></div></div>`;
+    }).join('');
+}
+
+function updateMedicationBuilderUI(){
+    const isEdit=medicationFormMode==='edit';
+    document.getElementById('addMedTitle').textContent=isEdit?'Edit Medicine':'Add New Medicine';
+    document.getElementById('medSubmitBtn').textContent=isEdit?'Update Medicine':'Save Medicine';
+    document.getElementById('medCancelBtn').textContent=isEdit?'Cancel Edit':'Cancel';
+}
+
+function resetMedicationForm(){
+    medicationFormMode='create';
+    editingMedicationIndex=null;
+    ['medName','medConcentration','medMfg','medExpiry','medQuantity','medUsage','medDiet','medYoga','medExercise'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('medAge').value='32';
+    document.getElementById('medFrequency').value='';
+    updateMedicationBuilderUI();
+}
+
+function showAddMedModal(){
+    if(medicationFormMode!=='edit') resetMedicationForm();
+    document.getElementById('addMedModal').style.display='flex';
+}
+
+function hideAddMedModal(){
+    document.getElementById('addMedModal').style.display='none';
+    resetMedicationForm();
+}
+
+function cancelMedicationForm(){
+    hideAddMedModal();
+}
+
+function editMedicine(index){
+    const med=medications[index];
+    if(!med) return;
+    medicationFormMode='edit';
+    editingMedicationIndex=index;
+    document.getElementById('medName').value=med.name || '';
+    document.getElementById('medConcentration').value=med.concentration || '';
+    document.getElementById('medMfg').value=med.mfg || '';
+    document.getElementById('medExpiry').value=med.expiry || '';
+    document.getElementById('medQuantity').value=med.quantity || '';
+    document.getElementById('medFrequency').value=med.frequency || '';
+    document.getElementById('medUsage').value=med.usage || '';
+    document.getElementById('medAge').value=med.age || '32';
+    document.getElementById('medDiet').value=med.diet || '';
+    document.getElementById('medYoga').value=med.yoga || '';
+    document.getElementById('medExercise').value=med.exercise || '';
+    updateMedicationBuilderUI();
+    document.getElementById('addMedModal').style.display='flex';
+}
+
+function deleteMedicine(index){
+    const med=medications[index];
+    if(!med) return;
+    if(!confirm(`Delete "${med.name}"?`)) return;
+    medications.splice(index,1);
+    renderMedications();
+    renderReminders();
+    persistAppState();
+    showToast(`${med.name} deleted`,'amber');
+}
+
+function saveMedicine(){
+    const name=document.getElementById('medName').value.trim();
+    if(!name){showToast('Please enter a medicine name','amber');return;}
+    const duplicate=medications.find((med,index)=>med.name.toLowerCase()===name.toLowerCase() && index!==editingMedicationIndex);
+    if(duplicate){showToast('Use a unique medicine name','amber');return;}
+    const payload={
+        name,
+        concentration:document.getElementById('medConcentration').value||'—',
+        mfg:document.getElementById('medMfg').value,
+        expiry:document.getElementById('medExpiry').value||'2027-01-01',
+        usage:document.getElementById('medUsage').value||'General',
+        age:document.getElementById('medAge').value||'32',
+        diet:document.getElementById('medDiet').value,
+        yoga:document.getElementById('medYoga').value||'Gentle breathing practice',
+        exercise:document.getElementById('medExercise').value||'15 minute walk',
+        frequency:document.getElementById('medFrequency').value||'Once daily',
+        quantity:document.getElementById('medQuantity').value||'30',
+        sideEffects:'Consult your doctor for side effects',
+        dosDonts:'Follow prescription as advised'
+    };
+    if(medicationFormMode==='edit' && editingMedicationIndex!==null){
+        medications[editingMedicationIndex]={...medications[editingMedicationIndex],...payload};
+    }else{
+        medications.unshift(payload);
+    }
+    renderMedications();
+    renderReminders();
+    const wasEditing=medicationFormMode==='edit';
+    hideAddMedModal();
+    persistAppState();
+    showToast(wasEditing?`${name} updated successfully`:`${name} added successfully`);
+}
+
+function renderReminders(){
+    const c=document.getElementById('reminderList');
+    if(!medications.length){
+        c.innerHTML='<div style="text-align:center;padding:36px 0;color:var(--muted);font-size:14px;">No reminders yet. Add a medicine first.</div>';
+        return;
+    }
+    c.innerHTML=medications.map((m,i)=>`<div class="reminder-card"><div style="display:flex;align-items:center;gap:13px;"><div style="width:40px;height:40px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);border-radius:11px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid fa-bell" style="color:#2563eb;font-size:15px;"></i></div><div><p style="font-weight:600;font-size:14px;">${m.name} ${m.concentration}</p><p style="font-size:12px;color:var(--muted);">${m.frequency} • Next: <span style="color:var(--teal);font-weight:600;">${rtimes[i%4]}</span></p></div></div><button onclick="toggleReminder(${i},this)" style="background:#fef3c7;color:#92400e;border:1.5px solid #fde68a;border-radius:10px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap;">Mark as Taken</button></div>`).join('');
+}
+
+function toggleReminder(i,btn){
+    if(btn.textContent==='Mark as Taken'){
+        btn.textContent='✓ Taken';
+        btn.style.background='#d1fae5';
+        btn.style.color='#065f46';
+        btn.style.borderColor='#6ee7b7';
+        showToast(`${medications[i].name} marked as taken`);
+    }else{
+        btn.textContent='Mark as Taken';
+        btn.style.background='#fef3c7';
+        btn.style.color='#92400e';
+        btn.style.borderColor='#fde68a';
+    }
+}
+
+function addNewReminder(){showToast('Use your phone clock app with the times shown above for device reminders.','amber');}
+
+function renderAutomations(){
+    const cards=document.getElementById('automationCards');
+    const timeline=document.getElementById('automationTimeline');
+    const detail=document.getElementById('automationDetailPanel');
+    const analytics=document.getElementById('automationAnalytics');
+    const activeCount=automations.filter(a=>a.enabled).length;
+    const urgentCount=automations.filter(a=>a.priority==='Urgent').length;
+    const avgReliability=Math.round(automations.reduce((sum,a)=>sum+a.reliability,0)/automations.length);
+    const search=(document.getElementById('automationSearch')?.value||'').trim().toLowerCase();
+    const filtered=automations.filter(a=>{
+        const statusMatch=automationFilter==='all'
+            || (automationFilter==='active' && a.enabled)
+            || (automationFilter==='urgent' && a.priority==='Urgent')
+            || (automationFilter==='draft' && !a.enabled);
+        const searchMatch=!search || `${a.name} ${a.trigger} ${a.action} ${a.priority}`.toLowerCase().includes(search);
+        return statusMatch && searchMatch;
+    });
+    if(filtered.length && !filtered.some(a=>a.id===selectedAutomationId)){
+        selectedAutomationId=filtered[0].id;
+    }
+    document.getElementById('activeAutomationCount').textContent=activeCount;
+    cards.innerHTML=filtered.length?filtered.map(a=>{
+        const tone=a.priority==='Urgent'?'badge-rose':a.priority==='Important'?'badge-amber':'badge-teal';
+        return `<div class="automation-card ${a.id===selectedAutomationId?'is-selected':''}" onclick="selectAutomation(${a.id})"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;"><div style="display:flex;align-items:center;gap:12px;"><div style="width:48px;height:48px;border-radius:14px;background:${a.enabled?'linear-gradient(135deg,#ccfbf1,#99f6e4)':'#e2e8f0'};display:flex;align-items:center;justify-content:center;color:${a.enabled?'var(--teal)':'#64748b'};"><i class="fa-solid ${a.icon}"></i></div><div><p style="font-weight:700;margin:0 0 4px;">${a.name}</p><span class="badge ${tone}">${a.priority}</span></div></div><button class="switch ${a.enabled?'active':''}" onclick="event.stopPropagation();toggleAutomation(${a.id})" aria-label="Toggle automation"></button></div><div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;"><p style="font-size:13px;color:var(--muted);margin:0;"><strong style="color:var(--navy);">Trigger:</strong> ${a.trigger}</p><p style="font-size:13px;color:var(--muted);margin:0;"><strong style="color:var(--navy);">Action:</strong> ${a.action}</p><p style="font-size:13px;color:var(--muted);margin:0;"><strong style="color:var(--navy);">Schedule:</strong> ${a.schedule}</p></div><p style="font-size:13px;line-height:1.7;color:#475569;margin:0 0 18px;">${a.note}</p><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;"><span style="font-size:12px;color:var(--teal);font-weight:600;">${a.stat}</span><button onclick="event.stopPropagation();runAutomation(${a.id})" class="btn-secondary" style="padding:8px 14px;font-size:12px;">Run now</button></div></div>`;
+    }).join(''):`<div style="grid-column:1/-1;padding:38px 20px;text-align:center;border:1px dashed var(--border);border-radius:18px;color:var(--muted);background:#fff;">No automations match your current filter.</div>`;
+    timeline.innerHTML=automationEvents.map(item=>{
+        const bg=item.tone==='amber'?'#fff7ed':item.tone==='slate'?'#f8fafc':'#f0fdfa';
+        const color=item.tone==='amber'?'#c2410c':item.tone==='slate'?'#475569':'#0f766e';
+        return `<div class="timeline-card" style="background:${bg};"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;"><div><p class="timeline-tag" style="color:${color};margin:0 0 8px;">${item.tag}</p><p style="font-weight:700;margin:0 0 6px;">${item.title}</p><p style="font-size:13px;color:#475569;line-height:1.7;margin:0;">${item.detail}</p></div><span style="font-size:12px;color:var(--muted);white-space:nowrap;">${item.time}</span></div></div>`;
+    }).join('');
+    const selected=automations.find(a=>a.id===selectedAutomationId) || automations[0];
+    if(selected){
+        document.getElementById('automationDetailStatus').className=`badge ${selected.enabled?'badge-teal':'badge-slate'}`;
+        document.getElementById('automationDetailStatus').textContent=selected.enabled?'Active':'Paused';
+        detail.innerHTML=`<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px;"><div><h4 class="serif" style="font-size:1.35rem;font-weight:500;margin:0 0 8px;">${selected.name}</h4><p style="font-size:13px;color:var(--muted);line-height:1.7;margin:0;">${selected.note}</p></div><div style="display:flex;gap:10px;flex-wrap:wrap;"><button onclick="runAutomation(${selected.id})" class="btn-primary" style="padding:10px 16px;font-size:12px;">Run selected</button><button onclick="editAutomation(${selected.id})" class="btn-secondary" style="padding:10px 16px;font-size:12px;">Edit</button><button onclick="deleteAutomation(${selected.id})" class="btn-secondary" style="padding:10px 16px;font-size:12px;border-color:#fda4af;color:#be123c;">Delete</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;"><div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Last run</div><div style="font-weight:700;margin-top:8px;">${selected.lastRun}</div></div><div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Next run</div><div style="font-weight:700;margin-top:8px;">${selected.nextRun}</div></div><div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Owner</div><div style="font-weight:700;margin-top:8px;">${selected.owner}</div></div><div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Guardrail</div><div style="font-weight:700;margin-top:8px;font-size:13px;line-height:1.6;">${selected.guardrail}</div></div></div><div style="display:grid;gap:12px;"><div><div style="display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:6px;"><span style="color:var(--muted);">Reliability</span><strong>${selected.reliability}%</strong></div><div class="mini-bar"><div class="mini-fill" style="width:${selected.reliability}%;"></div></div></div><div><div style="display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:6px;"><span style="color:var(--muted);">Coverage</span><strong>${selected.coverage}%</strong></div><div class="mini-bar"><div class="mini-fill" style="width:${selected.coverage}%;"></div></div></div></div>`;
+    }
+    analytics.innerHTML=`<div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Active automations</div><div class="serif" style="font-size:2rem;margin-top:8px;">${activeCount}</div><p style="font-size:12px;color:var(--muted);margin:8px 0 0;">${automations.length-activeCount} paused workflow${automations.length-activeCount===1?'':'s'} available for review.</p></div><div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Average reliability</div><div class="serif" style="font-size:2rem;margin-top:8px;">${avgReliability}%</div><div class="mini-bar" style="margin-top:10px;"><div class="mini-fill" style="width:${avgReliability}%;"></div></div></div><div class="detail-stat"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;">Urgent coverage</div><div class="serif" style="font-size:2rem;margin-top:8px;">${urgentCount}</div><p style="font-size:12px;color:var(--muted);margin:8px 0 0;">High-priority rules receiving stricter escalation handling.</p></div>`;
+}
+
+function selectAutomation(id){
+    selectedAutomationId=id;
+    renderAutomations();
+    persistAppState();
+}
+
+function setAutomationFilter(filter,btn){
+    automationFilter=filter;
+    document.querySelectorAll('#automationFilters .filter-pill').forEach(pill=>pill.classList.remove('active'));
+    btn.classList.add('active');
+    renderAutomations();
+}
+
+function toggleAutomation(id){
+    automations=automations.map(a=>a.id===id?{...a,enabled:!a.enabled}:a);
+    const current=automations.find(a=>a.id===id);
+    automationEvents.unshift({
+        tag:current.enabled?'Enabled':'Paused',
+        time:'Just now',
+        title:`${current.name} ${current.enabled?'activated':'paused'}`,
+        detail:current.enabled?'This automation will resume running on its next schedule.':'No future runs will be triggered until you turn it back on.',
+        tone:current.enabled?'teal':'slate'
+    });
+    automationEvents=automationEvents.slice(0,6);
+    renderAutomations();
+    persistAppState();
+    showToast(`${current.name} ${current.enabled?'enabled':'paused'}`);
+}
+
+function runAutomation(id){
+    const automation=automations.find(a=>a.id===id);
+    if(!automation.enabled){showToast('Enable this automation before running it','amber');return;}
+    automation.lastRun='Just now';
+    automationEvents.unshift({
+        tag:'Completed',
+        time:'Just now',
+        title:`${automation.name} executed manually`,
+        detail:`${automation.action} completed from the automation dashboard.`,
+        tone:'teal'
+    });
+    automationEvents=automationEvents.slice(0,6);
+    renderAutomations();
+    persistAppState();
+    showToast(`${automation.name} ran successfully`);
+}
+
+function createAutomationFromForm(){
+    const wasEditing=automationFormMode==='edit';
+    const name=document.getElementById('automationName').value.trim();
+    const trigger=document.getElementById('automationTrigger').value;
+    const action=document.getElementById('automationAction').value;
+    const schedule=document.getElementById('automationSchedule').value.trim();
+    const priority=document.getElementById('automationPriority').value;
+    const note=document.getElementById('automationSafety').value.trim();
+    if(!name||!schedule){showToast('Please complete the automation form','amber');return;}
+    if(priority==='Urgent' && !note){showToast('Urgent automations need a safety note','amber');return;}
+    const duplicate=automations.find(a=>a.name.toLowerCase()===name.toLowerCase() && a.id!==editingAutomationId);
+    if(duplicate){showToast('Use a unique automation name','amber');return;}
+    if(automationFormMode==='edit' && editingAutomationId!==null){
+        automations=automations.map(a=>a.id===editingAutomationId?{
+            ...a,
+            name,trigger,action,schedule,priority,
+            note:note||'Custom automation updated from builder.',
+            nextRun:schedule,
+            guardrail:note||'Review escalation conditions before going live.'
+        }:a);
+        selectedAutomationId=editingAutomationId;
+        automationEvents.unshift({tag:'Updated',time:'Just now',title:`${name} updated`,detail:`Trigger: ${trigger}. Action: ${action}. Schedule: ${schedule}.`,tone:'teal'});
+    }else{
+        const nextId=automations.length?Math.max(...automations.map(a=>a.id))+1:1;
+        automations.unshift({id:nextId,name,trigger,action,schedule,priority,note:note||'Custom automation created from builder.',enabled:true,stat:'New automation ready to run',icon:'fa-bolt',reliability:92,coverage:68,lastRun:'Not run yet',nextRun:schedule,owner:'Custom workflow',guardrail:note||'Review escalation conditions before going live.'});
+        selectedAutomationId=nextId;
+        automationEvents.unshift({tag:'Created',time:'Just now',title:`${name} added to Automation Studio`,detail:`Trigger: ${trigger}. Action: ${action}. Schedule: ${schedule}.`,tone:'teal'});
+    }
+    automationEvents=automationEvents.slice(0,6);
+    renderAutomations();
+    persistAppState();
+    resetAutomationForm();
+    showToast(wasEditing?'Automation updated':'New automation saved');
+}
+
+function loadAutomationTemplate(){
+    automationFormMode='create';
+    editingAutomationId=null;
+    document.getElementById('automationName').value='Evening blood pressure check';
+    document.getElementById('automationTrigger').value='Morning wellness check-in';
+    document.getElementById('automationAction').value='Send reminder';
+    document.getElementById('automationSchedule').value='Every evening at 7:00 PM';
+    document.getElementById('automationPriority').value='Important';
+    document.getElementById('automationSafety').value='If the patient skips two days in a row, suggest logging symptoms before escalating.';
+    updateAutomationBuilderUI();
+    showToast('Example template loaded');
+}
+
+function focusAutomationBuilder(){
+    openPage('automation',false);
+    document.getElementById('automationBuilder').scrollIntoView({behavior:'smooth',block:'center'});
+    document.getElementById('automationName').focus();
+}
+
+const mDB={
+    paracetamol:{uses:"Fever, headache, mild to moderate pain, cold & flu symptoms",dose:"Adults: 500mg–1g every 4-6 hours. Max 4g/day. Take with water.",side:"Rare at normal doses. Overdose can cause serious liver damage.",warn:"Do not exceed 4 tablets/day. Avoid with alcohol. Not for liver disease patients.",type:"OTC",narcotic:false},
+    metformin:{uses:"Type 2 Diabetes — controls blood sugar levels",dose:"500mg–2000mg daily with meals. As per doctor's prescription.",side:"Nausea, diarrhea, stomach upset (usually improves over time)",warn:"Do not take if kidneys are impaired. Monitor blood sugar regularly. Avoid alcohol.",type:"Prescription",narcotic:false},
+    aspirin:{uses:"Pain, fever, inflammation, heart disease prevention (low dose)",dose:"Pain/Fever: 300-600mg every 4-6 hours. Cardiac: 75-100mg once daily.",side:"Stomach irritation, bleeding risk, nausea",warn:"Avoid in children under 16. Not for dengue patients. Take after food.",type:"OTC / Prescription",narcotic:false},
+    amoxicillin:{uses:"Bacterial infections — throat, ear, chest, urinary tract",dose:"250-500mg every 8 hours, or 500-875mg every 12 hours. Complete full course.",side:"Diarrhea, nausea, skin rash, allergic reaction in some",warn:"Always complete the full course. Do not use if allergic to penicillin.",type:"Prescription",narcotic:false},
+    ibuprofen:{uses:"Pain, inflammation, fever, arthritis, menstrual cramps",dose:"Adults: 200-400mg every 4-6 hours. Max 1200mg/day (OTC).",side:"Stomach pain, nausea, ulcers with prolonged use",warn:"Avoid on empty stomach. Not for kidney/heart patients. Avoid in last trimester of pregnancy.",type:"OTC",narcotic:false},
+    cetirizine:{uses:"Allergies, hay fever, hives, runny nose, itchy eyes and skin",dose:"Adults: 10mg once daily. May cause drowsiness.",side:"Drowsiness, dry mouth, headache",warn:"Avoid driving after taking. Do not combine with alcohol.",type:"OTC",narcotic:false},
+    atorvastatin:{uses:"High cholesterol (LDL), prevention of heart disease and stroke",dose:"10-80mg once daily at night. Long-term medication.",side:"Muscle pain, liver enzyme changes, nausea",warn:"Regular liver function tests needed. Avoid grapefruit juice. Report muscle pain immediately.",type:"Prescription",narcotic:false}
+};
+
+function checkMedicine(){
+    const raw=document.getElementById('medicineNameCheck').value.trim();
+    if(!raw){showToast('Please enter a medicine name','amber');return;}
+    const key=raw.toLowerCase().replace(/\s+/g,'');
+    const result=document.getElementById('checkResult');
+    let found=null;
+    for(const k in mDB){if(key.includes(k)||k.includes(key)){found=mDB[k];break;}}
+    if(!found){
+        result.innerHTML=`<div class="result-box" style="border-color:#fde68a;background:#fffbeb;"><p style="color:#92400e;font-weight:600;font-size:14px;">"${raw}" not found in our database.</p><p style="margin-top:8px;font-size:13px;color:var(--muted);">This app covers commonly prescribed medicines. For detailed information on this medicine, consult your pharmacist or refer to the package insert.</p></div>`;
+        return;
+    }
+    const nb=found.narcotic?`<div style="background:#fff1f2;border:1.5px solid #fecdd3;border-radius:10px;padding:13px;margin-top:12px;"><p style="color:#be123c;font-weight:700;font-size:13px;">Controlled Substance — Valid Prescription Required</p><p style="font-size:12px;color:#9f1239;margin-top:3px;">This medicine is regulated by law. It cannot be dispensed without a valid prescription from a licensed doctor.</p></div>`:'';
+    result.innerHTML=`<div class="result-box"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;"><h3 style="font-size:1.1rem;font-weight:700;color:var(--navy);font-family:'Fraunces',serif;">${raw.charAt(0).toUpperCase()+raw.slice(1)}</h3><span class="badge ${found.type==='OTC'?'badge-teal':'badge-amber'}">${found.type}</span></div><h4>Uses</h4><p>${found.uses}</p><h4>Dosage Guide</h4><p>${found.dose}</p><h4>Common Side Effects</h4><p>${found.side}</p><h4>Important Warnings</h4><p>${found.warn}</p>${nb}</div>`;
+}
+
+function setDietType(type){
+    selectedDietType=type;
+    ['veg','nonveg','vegan'].forEach(t=>{
+        const b=document.getElementById(t+'Btn');
+        if(t===type){b.style.borderColor='var(--teal)';b.style.background='rgba(13,148,136,.08)';b.style.color='var(--teal)';}
+        else{b.style.borderColor='var(--border)';b.style.background='transparent';b.style.color='var(--navy)';}
+    });
+    persistAppState();
+}
+
+const dPlans={
+    veg:{breakfast:"Oats porridge with banana + 1 glass warm lemon water",snack1:"5-6 almonds + 1 seasonal fruit",lunch:"2 chapati + dal + sabzi + cucumber raita + small bowl brown rice",snack2:"Roasted chana + green tea or buttermilk",dinner:"1-2 chapati + mixed vegetable curry + small bowl of curd",hydration:"8-10 glasses of water daily. Coconut water recommended in afternoons."},
+    nonveg:{breakfast:"2 boiled eggs + 2 whole wheat bread slices + 1 glass of milk",snack1:"1 banana or apple + a few walnuts",lunch:"1 cup rice + grilled chicken + dal + salad",snack2:"Boiled egg or small bowl sprouts + green tea",dinner:"2 chapati + fish curry or chicken stew + steamed vegetables",hydration:"10-12 glasses of water. Avoid aerated drinks and packaged juices."},
+    vegan:{breakfast:"Smoothie (banana + almond milk + flaxseed) + multigrain bread with peanut butter",snack1:"Mixed nuts & seeds + 1 fruit",lunch:"Brown rice + chana dal + stir-fried vegetables + green salad",snack2:"Roasted pumpkin seeds + herbal tea",dinner:"2 chapati + tofu bhurji or rajma curry + sautéed vegetables",hydration:"10 glasses of water. Include coconut water and herbal teas."}
+};
+
+const cAdvice={
+    diabetes:{avoid:"White rice, maida, sugar, sweets, fruit juices, potatoes, white bread",extra:"Prefer low-GI foods. Eat small meals every 3-4 hrs. Include bitter gourd and fenugreek seeds."},
+    bp:{avoid:"Excess salt, fried foods, high-sodium snacks, excess caffeine",extra:"Maintain healthy weight. Regular walking. Reduce stress. Limit tea/coffee to 2 cups/day."},
+    anemia:{avoid:"Tea and coffee with meals",extra:"Include iron-rich foods such as palak, dates, jaggery, pomegranate, and rajma."}
+};
+
+function generateDietPlan(){
+    const allergy=document.getElementById('foodAllergy').value.trim().toLowerCase();
+    const cond=document.getElementById('healthCondition').value.trim().toLowerCase();
+    const plan=dPlans[selectedDietType];
+    let condBlocks='';
+    for(const k in cAdvice){
+        if(cond.includes(k)){
+            const a=cAdvice[k];
+            condBlocks=`<div style="background:#fef3c7;border-left:4px solid var(--amber);padding:13px 15px;border-radius:0 10px 10px 0;margin-top:11px;"><p style="font-weight:700;font-size:13px;margin-bottom:3px;">For ${k.charAt(0).toUpperCase()+k.slice(1)}:</p><p style="font-size:13px;color:#92400e;"><strong>Avoid:</strong> ${a.avoid}</p><p style="font-size:13px;color:#065f46;margin-top:3px;"><strong>Include:</strong> ${a.extra}</p></div>`;
+            break;
+        }
+    }
+    const aBlock=allergy?`<div style="background:#fff1f2;border-left:4px solid var(--rose);padding:12px 15px;border-radius:0 10px 10px 0;margin-top:11px;"><p style="font-size:13px;color:#be123c;"><strong>Avoid:</strong> ${allergy}</p></div>`:'';
+    const dlabel={veg:'Vegetarian',nonveg:'Non-Vegetarian',vegan:'Vegan'}[selectedDietType];
+    document.getElementById('dietResult').innerHTML=`<div class="result-box"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;"><h3 style="font-size:1.1rem;font-weight:700;color:var(--navy);font-family:'Fraunces',serif;">Your ${dlabel} Diet Plan</h3></div><div style="display:flex;flex-direction:column;gap:9px;"><div style="background:#f8fafc;border-radius:10px;padding:13px;"><p style="font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Breakfast</p><p style="font-size:13.5px;">${plan.breakfast}</p></div><div style="background:#f8fafc;border-radius:10px;padding:13px;"><p style="font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Mid-Morning Snack</p><p style="font-size:13.5px;">${plan.snack1}</p></div><div style="background:#f8fafc;border-radius:10px;padding:13px;"><p style="font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Lunch</p><p style="font-size:13.5px;">${plan.lunch}</p></div><div style="background:#f8fafc;border-radius:10px;padding:13px;"><p style="font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Evening Snack</p><p style="font-size:13.5px;">${plan.snack2}</p></div><div style="background:#f8fafc;border-radius:10px;padding:13px;"><p style="font-weight:700;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Dinner</p><p style="font-size:13.5px;">${plan.dinner}</p></div><div style="background:#f0fdfa;border-radius:10px;padding:13px;"><p style="font-weight:700;font-size:11px;color:var(--teal);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Hydration</p><p style="font-size:13.5px;">${plan.hydration}</p></div></div>${condBlocks}${aBlock}</div>`;
+}
+
+const arts={
+    1:{title:'How to Read a Prescription',content:`<p style="margin-bottom:14px;">Understanding your prescription helps you take medicines correctly and avoid mistakes.</p><h4 style="font-weight:700;margin:14px 0 5px;color:var(--navy);">1. Patient Information</h4><p>Name, age, and date — always verify these match before taking any medicine.</p><h4 style="font-weight:700;margin:14px 0 5px;color:var(--navy);">2. Rx Symbol</h4><p>The "Rx" symbol marks the start of the prescription order.</p><h4 style="font-weight:700;margin:14px 0 5px;color:var(--navy);">3. Medicine Name & Strength</h4><p>Generic or brand name plus dose. Generic medicines are the same quality at a lower cost.</p>`},
+    2:{title:'Safe Use of Medicines',content:`<ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px;"><li>Take medicines exactly as prescribed</li><li>Complete the full course even if you feel better</li><li>Store medicines in a cool, dry place</li><li>Keep medicines away from children</li><li>Never double the next dose if you miss one</li></ul>`},
+    3:{title:'Yoga & Lifestyle Tips',content:`<ul style="list-style:disc;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:14px;"><li>Practice pranayama for 10 minutes daily</li><li>Walk briskly for 30 minutes when appropriate</li><li>Sleep 7 to 8 hours for better recovery</li><li>Ask your doctor before changing exercise routines while on medication</li></ul>`}
+};
+
+function showArticle(id){
+    const a=arts[id];
+    document.getElementById('articleTitle').textContent=a.title;
+    document.getElementById('articleContent').innerHTML=a.content;
+    document.getElementById('articleModal').style.display='flex';
+}
+
+function hideArticleModal(){document.getElementById('articleModal').style.display='none';}
+function callEmergency(){if(confirm('Call Emergency Services (108)?'))window.location.href='tel:108';}
+function showEmergencyMedicines(){document.getElementById('emergencyModal').style.display='flex';}
+function hideEmergencyModal(){document.getElementById('emergencyModal').style.display='none';}
+
+function showToast(msg,type='teal'){
+    const bg={teal:'#0d9488',amber:'#d97706',rose:'#e11d48'}[type]||'#0d9488';
+    const t=document.createElement('div');
+    t.className='toast-item';
+    t.style.cssText=`background:${bg};color:#fff;padding:11px 17px;border-radius:11px;font-size:13.5px;font-weight:500;box-shadow:0 8px 22px rgba(0,0,0,.18);max-width:300px;`;
+    t.textContent=msg;
+    document.getElementById('toastContainer').appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},3200);
+}
+
+['addMedModal','emergencyModal','articleModal'].forEach(id=>{
+    document.getElementById(id).addEventListener('click',function(e){
+        if(e.target===this)this.style.display='none';
+    });
+});
+
+window.addEventListener('hashchange',()=>{
+    if(document.getElementById('mainApp').style.display!=='none'){
+        openPage(getPageFromHash(),false);
+    }
+});
+
+updateAutomationBuilderUI();
+updateMedicationBuilderUI();
+</script>
+</body>
+</html>
